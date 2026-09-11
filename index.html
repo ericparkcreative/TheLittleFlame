@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>The Little Flame - Mobile Edition</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Work+Sans:wght@500&display=swap" rel="stylesheet">
+<title>The Little Flame</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Work+Sans:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --flame-gold: #F2B24C;
@@ -13,8 +13,6 @@
     --paper: #F4EFE4;
     --forest-slate: #4A5D53;
     --mist-gray: #A9B3AD;
-    
-    /* Dynamic Typography Variables */
     --text-size: 1.1rem;
     --line-height: 1.7;
   }
@@ -27,497 +25,636 @@
     background-color: var(--volcano-black);
     font-family: 'Merriweather', serif;
     overflow: hidden;
-    touch-action: none; /* Prevents native pull-to-refresh */
+    color: #222;
   }
 
-  /* UI Overlay Controls */
-  .ui-bar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 16px 20px;
-    display: flex;
-    justify-content: space-between;
-    box-sizing: border-box;
-    z-index: 100;
-    pointer-events: none;
-  }
-
-  .ui-btn {
-    background: rgba(23, 18, 28, 0.65);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(244, 239, 228, 0.15);
-    color: var(--paper);
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    pointer-events: auto;
-    font-size: 1.2rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  }
-
-  .settings-panel {
-    position: fixed;
-    bottom: -100%;
-    left: 0;
-    width: 100%;
-    background: var(--paper);
-    padding: 30px 24px;
-    box-sizing: border-box;
-    border-radius: 20px 20px 0 0;
-    z-index: 101;
-    transition: bottom 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
-  }
-
-  .settings-panel.active {
-    bottom: 0;
-  }
-
-  .settings-panel h3 {
+  /* -------------------------------------------
+     UNIVERSAL STYLES (Typography & Cover)
+  -------------------------------------------- */
+  h1 {
     font-family: 'Fraunces', serif;
-    color: var(--volcano-black);
-    margin: 0 0 20px 0;
-    font-size: 1.4rem;
-  }
-
-  .slider-group {
-    margin-bottom: 24px;
-  }
-
-  .slider-group label {
-    display: block;
-    font-family: 'Work Sans', sans-serif;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 1px;
-    color: #555;
-    margin-bottom: 10px;
-  }
-
-  input[type=range] {
-    width: 100%;
-    accent-color: var(--ember-orange);
-  }
-
-  .close-settings {
-    width: 100%;
-    padding: 14px;
-    background: var(--volcano-black);
-    color: var(--paper);
-    border: none;
-    border-radius: 8px;
-    font-family: 'Work Sans', sans-serif;
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-top: 10px;
-  }
-
-  /* Toast Notification */
-  .toast {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%) translateY(-100px);
-    background: var(--flame-gold);
-    color: var(--volcano-black);
-    padding: 12px 24px;
-    border-radius: 30px;
-    font-family: 'Work Sans', sans-serif;
-    font-size: 0.85rem;
-    font-weight: 500;
-    z-index: 200;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  }
-  .toast.show {
-    transform: translateX(-50%) translateY(0);
-  }
-
-  /* Book Engine */
-  .scene {
-    width: 100%;
-    height: 100%;
-    perspective: 2500px;
-  }
-
-  .book {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    transform-style: preserve-3d;
-  }
-
-  .page {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    transform-origin: left center;
-    transform-style: preserve-3d;
-    transition: transform 0.6s cubic-bezier(0.645, 0.045, 0.355, 1);
-    background-color: var(--paper);
-    backface-visibility: hidden;
-  }
-
-  .page.flipped {
-    transform: rotateY(-180deg);
-  }
-
-  /* Page Types */
-  .page-cover {
-    background-color: var(--forest-slate);
-    color: var(--paper);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 40px;
+    font-size: clamp(3rem, 8vw, 4rem);
+    font-weight: 300;
+    line-height: 1.1;
+    margin: 0 0 16px 0;
     text-align: center;
   }
-
-  .page-cover h1 {
-    font-family: 'Fraunces', serif;
-    font-size: 3.5rem;
-    font-weight: 300;
-    line-height: 1.05;
-    margin-bottom: 20px;
-  }
-
-  .page-cover h1 em {
+  h1 em {
     color: var(--flame-gold);
     font-style: italic;
   }
-
-  .page-text {
-    padding: 100px 30px 40px 30px; /* Top padding clears the UI bar */
-    height: 100%;
-    box-sizing: border-box;
-    display: flex;
+  
+  /* Goal 2: Perfect Cover Centering */
+  .cover-container {
+    background-color: var(--forest-slate) !important;
+    color: var(--paper);
+    display: flex !important;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
+    text-align: center;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 20px;
+    border: none !important;
+  }
+  
+  .instruction-text {
+    font-family: 'Work Sans', sans-serif;
+    letter-spacing: 2px;
+    font-size: 0.8rem;
+    color: var(--mist-gray);
+    text-transform: uppercase;
+    margin: 0;
   }
 
-  .scroll-container {
+  .image-container {
     width: 100%;
     height: 100%;
-    overflow-y: auto;
-    overscroll-behavior: contain; /* Stops bounce effect */
-  }
-
-  /* Dynamic text styles applied here */
-  .story-text {
-    font-size: var(--text-size);
-    line-height: var(--line-height);
-    color: #222;
-    text-align: left;
-    margin-bottom: 20px;
-  }
-
-  .dialogue-text {
-    font-size: calc(var(--text-size) * 0.95);
-    line-height: var(--line-height);
-    color: #444;
-    padding-left: 16px;
-    border-left: 2px solid var(--ember-orange);
-    margin-bottom: 20px;
-  }
-
-  .page-image {
     background-size: cover;
     background-position: center;
     background-color: var(--mist-gray);
-    width: 100%;
-    height: 100%;
     display: flex;
     justify-content: center;
-    align-items: flex-end;
-    padding-bottom: 40px;
+    align-items: center;
+    color: var(--volcano-black);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
   }
 
-  .art-caption {
-    background: rgba(23, 18, 28, 0.7);
-    backdrop-filter: blur(4px);
-    color: var(--paper);
-    padding: 12px 20px;
-    border-radius: 8px;
-    font-family: 'Work Sans', sans-serif;
-    font-size: 0.75rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+  /* -------------------------------------------
+     DESKTOP ENGINE STYLES
+  -------------------------------------------- */
+  #ambient-light {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    pointer-events: none; z-index: 100;
+    background: radial-gradient(circle 450px at var(--cursor-x, 50vw) var(--cursor-y, 50vh), rgba(242, 178, 76, 0.15), rgba(217, 108, 46, 0.05) 40%, transparent 70%);
+    mix-blend-mode: screen;
   }
+  .desktop-scene {
+    width: 960px; height: 600px;
+    perspective: 2000px; position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    z-index: 10;
+  }
+  .desktop-book { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; }
+  .desktop-page {
+    width: 50%; height: 100%; position: absolute; right: 0;
+    transform-origin: left center; transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+    cursor: pointer;
+  }
+  .desktop-page.flipped { transform: rotateY(-180deg); }
+  .desktop-face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden; background-color: var(--paper);
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.1);
+    padding: 40px; box-sizing: border-box; border: 1px solid #d3cec4;
+  }
+  .desktop-front { transform: rotateY(0deg); border-radius: 0 12px 12px 0; border-left: 2px solid rgba(0,0,0,0.08); }
+  .desktop-back { transform: rotateY(180deg); border-radius: 12px 0 0 12px; border-right: 2px solid rgba(0,0,0,0.08); }
+  .desktop-text-content {
+    width: 100%; height: 100%; overflow-y: auto; padding-right: 12px;
+  }
+  .desktop-text-content::-webkit-scrollbar { width: 4px; }
+  .desktop-text-content::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 4px; }
+  
+  .spread-title {
+    font-family: 'Fraunces', serif; font-size: 1.4rem; color: #8C3B1B;
+    margin-top: 0; margin-bottom: 16px; border-bottom: 1px dashed #d3cec4; padding-bottom: 10px;
+  }
+  .section-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: #888; margin-bottom: 4px; font-weight: 700; font-family: 'Work Sans', sans-serif; }
+  .art-notes { background: rgba(0,0,0,0.03); padding: 16px; border-radius: 6px; margin-top: 16px; font-size: 0.85rem; color: #555; }
+  .desktop-story-text { font-size: 0.95rem; line-height: 1.7; margin-bottom: 12px; margin-top: 0; }
 
-  /* Hidden UI Tap Zones for Desktop debugging or tap navigation */
-  .tap-zone-left {
-    position: absolute; top: 0; left: 0; width: 35%; height: 100%; z-index: 50;
+  /* -------------------------------------------
+     MOBILE ENGINE STYLES
+  -------------------------------------------- */
+  .mobile-scene { width: 100%; height: 100%; perspective: 2500px; touch-action: none; }
+  .mobile-book { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; }
+  .mobile-page {
+    width: 100%; height: 100%; position: absolute; top: 0; left: 0;
+    transform-origin: left center; transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.645, 0.045, 0.355, 1);
+    background-color: var(--paper); backface-visibility: hidden;
   }
-  .tap-zone-right {
-    position: absolute; top: 0; right: 0; width: 65%; height: 100%; z-index: 50;
+  .mobile-page.flipped { transform: rotateY(-180deg); }
+  .mobile-text-wrapper {
+    padding: 100px 30px 40px 30px; height: 100%; box-sizing: border-box;
+    display: flex; flex-direction: column; align-items: center;
   }
+  .mobile-scroll { width: 100%; height: 100%; overflow-y: auto; overscroll-behavior: contain; }
+  .mobile-story { font-size: var(--text-size); line-height: var(--line-height); text-align: left; margin-bottom: 20px; }
+  .mobile-dialogue {
+    font-size: calc(var(--text-size) * 0.95); line-height: var(--line-height);
+    color: #444; padding-left: 16px; border-left: 2px solid var(--ember-orange); margin-bottom: 20px;
+  }
+  
+  /* Mobile UI Components */
+  .ui-bar {
+    position: fixed; top: 0; left: 0; width: 100%; padding: 16px 20px;
+    display: flex; justify-content: space-between; box-sizing: border-box; z-index: 100; pointer-events: none;
+  }
+  .ui-btn {
+    background: rgba(23, 18, 28, 0.65); backdrop-filter: blur(8px); border: 1px solid rgba(244, 239, 228, 0.15);
+    color: var(--paper); width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; pointer-events: auto; font-size: 1.2rem;
+  }
+  .settings-panel {
+    position: fixed; bottom: -100%; left: 0; width: 100%; background: var(--paper);
+    padding: 30px 24px; box-sizing: border-box; border-radius: 20px 20px 0 0; z-index: 101;
+    transition: bottom 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+  }
+  .settings-panel.active { bottom: 0; }
+  .settings-panel h3 { font-family: 'Fraunces', serif; color: var(--volcano-black); margin: 0 0 20px 0; font-size: 1.4rem; }
+  .slider-group { margin-bottom: 24px; }
+  .slider-group label { display: block; font-family: 'Work Sans', sans-serif; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; color: #555; margin-bottom: 10px; }
+  input[type=range] { width: 100%; accent-color: var(--ember-orange); }
+  .close-settings {
+    width: 100%; padding: 14px; background: var(--volcano-black); color: var(--paper);
+    border: none; border-radius: 8px; font-family: 'Work Sans', sans-serif; font-size: 1rem; text-transform: uppercase; margin-top: 10px;
+  }
+  .toast {
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+    background: var(--flame-gold); color: var(--volcano-black); padding: 12px 24px;
+    border-radius: 30px; font-family: 'Work Sans', sans-serif; font-size: 0.85rem; font-weight: 700;
+    z-index: 200; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
 
-<!-- UI Controls -->
-<div class="ui-bar">
-  <div class="ui-btn" id="btn-settings">Aa</div>
-  <div class="ui-btn" id="btn-bookmark">🔖</div>
-</div>
-
-<!-- Settings Panel -->
-<div class="settings-panel" id="settings-panel">
-  <h3>Typography</h3>
-  
-  <div class="slider-group">
-    <label>Text Size</label>
-    <input type="range" id="size-slider" min="0.8" max="1.8" step="0.1" value="1.1">
-  </div>
-  
-  <div class="slider-group">
-    <label>Line Height</label>
-    <input type="range" id="line-slider" min="1.3" max="2.2" step="0.1" value="1.7">
-  </div>
-
-  <button class="close-settings" id="btn-close-settings">Done</button>
-</div>
-
-<!-- Toast Notification -->
-<div class="toast" id="toast">Bookmark Saved</div>
-
-<!-- Book Engine -->
-<div class="scene">
-  <div class="book" id="book">
-    <!-- Pages Injected Here -->
-  </div>
-</div>
+<div id="app-root"></div>
 
 <script>
-  // Data Array with Em Dashes removed
+  // Unified Data Array with strict typography compliance
   const spreads = [
     {
-      title: "Act I: Birth",
-      story: "High in the burning sky, seven fire horses are running. Wherever they gallop, the world catches light. They are not cruel. They are only wild, and the world below has grown careless with the wild things. As they pass, two of the horses slow. They look back, down into the smoke, at something small falling toward the forest. Then they run on, and are gone.",
-      img: null 
+      title: "Spread 1 · The horses in the smoke",
+      story: "High in the burning sky, seven fire horses are running. Wherever they gallop, the world catches light. They are not cruel. They are only wild, and the world below has grown careless with the wild things.",
+      dialogue: null,
+      art: "Establishing spread. Wide, epic. Seven horses made of fire streak across a smoke-dark sky, manes trailing sparks.",
+      film: "Opening shot. Slow push in on the running herd; sound of thunderous hooves and wind.",
+      img: null
     },
     {
-      story: "The rain comes after, the way it always does. But under the oldest tree in the forest, in a small dry pocket of the world, a little flame blinks awake. It does not know how it got here. It does not know what it is. The little flame reaches out to touch the world. The earth goes black beneath its fingers. It pulls back, afraid of the mark it left.",
-      dialogue: "<strong>Flame:</strong> \"What... am I?\"<br><strong>Redwood:</strong> \"You are alive.\"",
+      title: "Spread 2 · The glance back",
+      story: "As they pass, two of the horses slow. They look back, down into the smoke, at something small falling toward the forest. Then they run on, and are gone.",
+      dialogue: null,
+      art: "Two horses turning their great heads to look back over their shoulders. Below and small: a single bright spark falling.",
+      film: "A held two-second moment. The herd streams on, two heads turn, a spark falls.",
+      img: null
+    },
+    {
+      title: "Spread 3 · Born under the redwood",
+      story: "The rain comes after, the way it always does. But under the oldest tree in the forest, in a small dry pocket of the world, a little flame blinks awake. It does not know how it got here. It does not know what it is.",
+      dialogue: null,
+      art: "Ground level, intimate. Rain sheeting down everywhere except the sheltered hollow at the redwood's roots, where a small flame flickers, wide-eyed and new.",
+      film: "Cut from epic sky to tiny quiet. Rain sound. The flame's first flicker of movement.",
       img: "watermarked_img_5637060041392631158.jpg"
     },
     {
+      title: "Spread 4 · What am I?",
+      story: "The little flame reaches out to touch the world. The earth goes black beneath its fingers. It pulls back, afraid of the mark it left.",
+      dialogue: "<strong>Flame:</strong> \"What... am I?\"<br><strong>Redwood:</strong> \"You are alive.\"",
+      art: "Tight on the flame's 'hand' and the small char it leaves on a leaf or root. The flame recoils.",
+      film: "Close on the charring touch. The redwood's voice arrives over a slow sway of high leaves.",
+      img: null
+    },
+    {
+      title: "Spread 5 · Dangerous is not the whole story",
       story: "“Then I am dangerous,” the little flame whispers. The old tree takes a long time to answer, the way old things do.",
       dialogue: "<strong>Redwood:</strong> \"Water can drown. Wind can level a mountain. Dangerous is not the whole story.\"",
+      art: "The flame small at the base of the enormous trunk, looking up. Scale contrast: the newborn and the ancient.",
+      film: "Two-shot: tiny flame, towering trunk. Let the pause before the redwood answers breathe.",
       img: null
     },
     {
-      story: "Far away, through the clearing smoke, a mountain glows. The little flame has never seen it before. And yet, somehow, it knows that place. It feels the pull of it like a string tied to its heart. But the little flame is afraid. “What if I burn something on the way?” it asks. “What if I burn someone who is trying to help me?”",
-      dialogue: "<strong>Redwood:</strong> \"That is a question worth carrying. It means you already know the difference between burning and caring. I cannot go with you. But I know someone who moves faster than I do.\"",
+      title: "Spread 6 · The place it knows",
+      story: "Far away, through the clearing smoke, a mountain glows. The little flame has never seen it before. And yet, somehow, it knows that place. It feels the pull of it like a string tied to its heart.",
+      dialogue: "<strong>Flame:</strong> \"I know that place. I don't know how I know it. But I do.\"",
+      art: "Over-the-shoulder from behind the little flame, gazing at a distant volcano glowing on the horizon.",
+      film: "Slow reveal of the volcano through parting smoke.",
       img: null
     },
     {
-      story: "The redwood's leaves stir, a low whistle meant for someone. And out of the smoke, a black shape drops down. The crow looks the little flame over, head tilting left, then right.",
+      title: "Spread 7 · But what if I burn them?",
+      story: "But the little flame is afraid. “What if I burn something on the way?” it asks. “What if I burn someone who is trying to help me?” “That is a question worth carrying,” the redwood says. “It means you already know the difference between burning and caring.”",
+      dialogue: null,
+      art: "The flame turned back toward the tree, anxious, small. This spread names the fear out loud.",
+      film: "Intimate. Hold on the flame's worried flicker.",
+      img: null
+    },
+    {
+      title: "Spread 8 · A black shape drops",
+      story: "“I cannot go with you,” says the tree. “But I know someone who moves faster than I do.” The redwood's leaves stir, a low whistle meant for someone. And out of the smoke, a black shape drops down.",
+      dialogue: null,
+      art: "The crow's arrival: the first hard black silhouette in the soft painted world. He lands on a low branch above the flame.",
+      film: "The whistle moves through leaves; a black shape drops into frame and lands.",
+      img: null
+    },
+    {
+      title: "Spread 9 · It's on fire",
+      story: "The crow looks the little flame over, head tilting left, then right.",
       dialogue: "<strong>Crow:</strong> \"It's on fire.\"<br><strong>Redwood:</strong> \"It is fire.\"<br><strong>Crow:</strong> \"...There's a difference?\"",
+      art: "Comic beat. The crow's head-tilt inspection. Play the crow's body language dry and deadpan.",
+      film: "Timing comedy: the head tilts, the deadpan exchange.",
       img: null
     },
     {
+      title: "Spread 10 · The plan",
       story: "The crow understands the problem at once. The flame cannot walk. And anything that carries it will burn. So the crow lifts a branch in his talons, and the little flame perches on the far end like a small bright lantern. Wobbling, uncertain, they rise.",
       dialogue: "<strong>Flame:</strong> \"We are UP!\"<br><strong>Crow:</strong> \"Yes. We are up. Please stop wiggling.\"",
+      art: "The lift-off. Crow flying, branch dangling, flame glowing at the tip. Establish the 'flame-on-a-branch' motif.",
+      film: "Their first flight: wobbly, joyful.",
       img: "watermarked_img_4289461905873182464.jpg"
     },
     {
-      story: "But the branch burns short, and the crow cannot fly far enough. They come down at the edge of a quiet marsh, a hidden, tended place, where a pair of dark eyes is watching from the reeds. The monkey steps out slowly. He was kept once, he tells them, caged by humans for a long time. Then the great burning came. The people ran. The cages were forgotten. And he ran too, until he found this marsh that no one had claimed.",
-      dialogue: "<strong>Flame:</strong> \"The fire gave you this?\"<br><strong>Monkey:</strong> \"The fire gave me everything.\"",
+      title: "Spread 11 · The marsh",
+      story: "But the branch burns short, and the crow cannot fly far enough. They come down at the edge of a quiet marsh, a hidden, tended place, where a pair of dark eyes is watching from the reeds.",
+      dialogue: null,
+      art: "Amber evening light on still water. Reeds. Two watchful dark eyes half hidden.",
+      film: "Descent and landing. Reveal the eyes in the reeds last.",
       img: null
     },
     {
+      title: "Spread 12 · The monkey who was freed",
+      story: "The monkey steps out slowly. He was kept once, he tells them, caged by humans for a long time. Then the great burning came. The people ran. The cages were forgotten. And he ran too, until he found this marsh that no one had claimed.",
+      dialogue: "<strong>Flame:</strong> \"The fire gave you this?\"<br><strong>Monkey:</strong> \"The fire gave me everything.\"",
+      art: "The monkey lit warm by the flame he's speaking to. Thematic heart of Act II: the same fire that destroys also frees.",
+      film: "Character close-up. His backstory can flash as brief desaturated memory-frames.",
+      img: null
+    },
+    {
+      title: "Spread 13 · A greener branch",
       story: "The monkey breaks a long green branch, one that will not burn so fast, and holds it out. “You're afraid of yourself,” he says quietly. “I can see it. You learn to carry what you are.” And so they go on: the crow the eye in the sky, the monkey the steady hands below, the little flame the light between them.",
+      dialogue: null,
+      art: "The handoff of the green branch. Three companions now, moving into dusk.",
+      film: "Traveling shot. Establish the new marching order.",
       img: "watermarked_img_7852508342357116395.jpg"
     },
     {
-      story: "That night they are hungry, so the little flame does something new. It touches a small nest of wood inside a ring of stones, and a warm fire blooms. Its own warmth, set gently into the world, harming nothing. And for the first time, the little flame laughs, a small crackling sound, like a fresh log catching light.",
+      title: "Spread 14 · The bonfire",
+      story: "That night they are hungry, so the little flame does something new. It touches a small nest of wood inside a ring of stones, and a warm fire blooms. Its own warmth, set gently into the world, harming nothing.",
+      dialogue: "<strong>Flame:</strong> \"Is that... me?\"<br><strong>Monkey:</strong> \"Part of you. The part you gave.\"",
+      art: "The warmest, coziest spread in the book. Three friends around a small contained fire.",
+      film: "The heart of the film. Slow, warm, unhurried.",
       img: null
     },
     {
-      story: "At last they reach the mountain. But they reach only the bottom of it. The rock is too hot. The monkey's hands are burned. The crow cannot fly the heavy air above. So close, and no further. As they sit, discouraged, something ancient comes scraping slowly out of the dark rock. An old iguana, the color of the mountain itself, with eyes like slow-burning lava.",
+      title: "Spread 15 · Nothing is afraid of you",
+      story: "“I burned a forest,” the little flame says. “The horses burned a forest,” says the crow. “You survived one.” “Tonight,” says the monkey, “you are keeping us warm. Tonight nothing is afraid of you.” And for the first time, the little flame laughs with a small, crackling sound, like a fresh log catching light.",
+      dialogue: null,
+      art: "The flame's first laugh. Catch the moment of lightness on all three friends.",
+      film: "The laugh is the beat to nail.",
+      img: null
+    },
+    {
+      title: "Spread 16 · Do they know I'm coming?",
+      story: "Later, the little flame looks up at the stars. “Do you think they can see us? The fire horses?” “I think they see everything from up there,” says the monkey. “I hope they know I'm coming,” says the little flame, softly.",
+      dialogue: null,
+      art: "Night. The three small around dying embers, faces upturned to a huge star field.",
+      film: "Night wide shot. Camp small under enormous stars.",
+      img: null
+    },
+    {
+      title: "Spread 17 · The bottom of it",
+      story: "At last they reach the mountain. But they reach only the bottom of it. The rock is too hot. The monkey's hands are burned. The crow cannot fly the heavy air above. So close, and no further.",
+      dialogue: null,
+      art: "Scale shifts to awe and defeat. The volcano fills the sky, black rock and lava veins.",
+      film: "Big reveal of the full mountain. Tilt up its face to feel the impossibility.",
+      img: null
+    },
+    {
+      title: "Spread 18 · The old iguana",
+      story: "As they sit, discouraged, something ancient comes scraping slowly out of the dark rock. An old iguana, the color of the mountain itself, with eyes like slow-burning lava. He has lived here longer than the rocks have been black.",
       dialogue: "<strong>Iguana:</strong> \"You've come a long way to be sad.\"",
+      art: "The iguana emerges from shadow, textured and old, blending from the rock.",
+      film: "Emergence from darkness. Reveal him slowly.",
       img: null
     },
     {
-      story: "“I know a way up,” says the old iguana. “I have never taken anyone before. But no one before has ever deserved to go.” The little flame steps onto one last branch. The monkey and the crow cannot follow. The way up is dark, but the little flame is the light, and by it the old iguana climbs.",
+      title: "Spread 19 · Give something back",
+      story: "They tell him everything: the redwood, the marsh, the long miles. The old iguana listens without a word. Others come to the mountain wanting something from it, he says. But this little flame came wanting to give something back.",
+      dialogue: "<strong>Iguana:</strong> \"You carried fire with burned hands. And you, you let them help you. That is not a small thing, for something afraid of itself.\"",
+      art: "The four together in a pocket of shelter at the mountain's base, the flame lighting their circle.",
+      film: "Keep the retelling brief on screen. A few memory flashes.",
+      img: null
+    },
+    {
+      title: "Spread 20 · I will be your feet",
+      story: "“I know a way up,” says the old iguana. “I have never taken anyone before. But no one before has ever deserved to go.” The little flame steps onto one last branch. The monkey and the crow cannot follow.",
       dialogue: "<strong>Iguana:</strong> \"You will be my light going up. I will be your feet.\"<br><strong>Crow:</strong> \"We know.\"",
+      art: "The farewell. Monkey and crow small in the foreground, watching the iguana begin to climb.",
+      film: "The parting. Linger on monkey and crow's faces.",
+      img: null
+    },
+    {
+      title: "Spread 21 · Into the mountain",
+      story: "The way up is dark, but the little flame is the light, and by it the old iguana climbs. Inside the rock, hidden colors catch the glow: copper, violet, gold. “It's beautiful in here,” the flame whispers. “Most things are,” says the iguana, “from the inside.”",
+      dialogue: null,
+      art: "Interior of the volcanic channels. The flame's light throws leaping color across wet mineral walls.",
+      film: "Interior climb. Camera travels with them.",
       img: "watermarked_img_198161616903919069.jpg"
     },
     {
-      story: "Higher up, the heat grows fierce, and the little flame grows with it, brighter, wilder, burning the branch fast. “The branch” it cries, afraid. “Don't shrink back,” says the iguana, climbing hard. “Burn. That is what you are for.” They reach the last ledge. Above is open sky and the volcano's roaring mouth, and the branch is nearly gone.",
+      title: "Spread 22 · Don't shrink back. Burn.",
+      story: "Higher up, the heat grows fierce, and the little flame grows with it, brighter, wilder, burning the branch fast. “The branch” it cries, afraid. “Don't shrink back,” says the iguana, climbing hard. “Burn. That is what you are for.”",
+      dialogue: null,
+      art: "The flame blazing large, the whole channel alight, the old iguana straining upward through the glare.",
+      film: "Rising intensity. The flame swells; light overwhelms the frame.",
       img: null
     },
     {
-      story: "And so, with the last of his strength, the old iguana draws the branch back and throws the little flame up, into the open sky. For a moment it is alone, tumbling, with nothing beneath it at all. And then the mountain erupts.",
+      title: "Spread 23 · Every step but the last",
+      story: "They reach the last ledge. Above is open sky and the volcano's roaring mouth, and the branch is nearly gone. The old iguana can climb no further.",
+      dialogue: "<strong>Iguana:</strong> \"Forgive an old lizard. I cannot take you the last step.\"<br><strong>Flame:</strong> \"You took me every step but the last. That is everything.\"",
+      art: "The hardest, tenderest spread. The two of them on the final ledge against the volcano's glow, sharing a last look.",
+      film: "The peak. Slow. Let the two looks carry it.",
       img: null
     },
     {
-      story: "Out of the roaring light, two fire horses come down. They circle the little flame, gentle now, and one breathes over it a long, warm breath, like a mother over something sleeping. The horse breathes again, a breath of pure fire, given freely, and the little flame grows. The little flame is a flame no longer. It is a small fire pony, whole at last, and entirely itself.",
+      title: "Spread 24 · The throw",
+      story: "And so, with the last of his strength, the old iguana draws the branch back, and throws the little flame up, into the open sky. For a moment it is alone, tumbling, with nothing beneath it at all. And then the mountain erupts.",
+      dialogue: null,
+      art: "The sacrifice, mid-motion. The iguana's throw; the flame spinning up into black sky.",
+      film: "Kinetic. The throw, the tumble, the beat of aloneness, then the eruption slams in.",
       img: null
     },
     {
+      title: "Spread 25 · The horses return",
+      story: "Out of the roaring light, two fire horses come down. They circle the little flame, gentle now, and one breathes over it a long, warm breath, like a mother over something sleeping.",
+      dialogue: "<strong>Flame:</strong> \"I know you. I came from you.\"",
+      art: "The two horses from Spread 2, returned, the promise paid. They encircle the tiny flame, a living shield of fire.",
+      film: "The payoff. Match the framing of Spread 2's glance.",
+      img: null
+    },
+    {
+      title: "Spread 26 · The little fire pony",
+      story: "The horse breathes again, a breath of pure fire, given freely, and the little flame grows. Legs of living fire. A mane like a solar flare. A tail streaming like a comet. The little flame is a flame no longer. It is a small fire pony, whole at last, and entirely itself. It runs up, past the clouds, past the cold, up among the stars, and wherever its light touches, the sky catches fire.",
+      dialogue: null,
+      art: "The transformation and the run. The pony forming out of fire, then galloping up a star field, striking each star alight.",
+      film: "Full release. The becoming, then the run to the stars.",
+      img: null
+    },
+    {
+      title: "Spread 27 · I know",
       story: "Far below, the monkey, the crow, and the old iguana watch the sky burn, and they know their friend is up there. And far away, in a forest slowly turning green again, the light reaches an old redwood. A black shape flies home and lands on its highest branch. “He made it, old friend,” says the crow. The old tree says nothing. But every leaf, all the way to the top, turns upward at once, as if to feel the warmth. As if to say: I know. I know.",
+      dialogue: null,
+      art: "Two-part closing spread. Left: three friends at the mountain's base. Right: the crow on the redwood.",
+      film: "Final sequence. Intercut the base and the redwood.",
       img: null
     }
   ];
 
-  // Engine Setup
-  const bookContainer = document.getElementById('book');
-  let pagesData = [];
+  const appRoot = document.getElementById('app-root');
 
-  // 1. Cover Page
-  pagesData.push(`
-    <div class="page page-cover">
-      <h1>The Little<br><em>Flame</em></h1>
-      <p style="font-family:'Work Sans', sans-serif; letter-spacing: 2px; font-size: 0.8rem; text-transform: uppercase;">Swipe to read</p>
-    </div>
-  `);
-
-  // 2. Map Spreads into single pages (Text -> Image)
-  spreads.forEach((spread, index) => {
-    // Generate Text Page
-    let textContent = `
-      <div class="page page-text">
-        <div class="scroll-container">
-          <p class="story-text">${spread.story}</p>
-          ${spread.dialogue ? `<p class="dialogue-text">${spread.dialogue}</p>` : ''}
-        </div>
-      </div>
+  // --------------------------------------------------
+  //  DESKTOP RENDERER
+  // --------------------------------------------------
+  function mountDesktop() {
+    let zIndexCounter = spreads.length + 2;
+    let html = `
+      <div id="ambient-light"></div>
+      <div class="desktop-scene">
+        <div class="desktop-book" id="d-book">
+          <!-- Cover -->
+          <div class="desktop-page active" style="z-index: ${zIndexCounter};">
+            <div class="desktop-face desktop-front cover-container">
+              <h1>The Little<br><em>Flame</em></h1>
+              <p class="instruction-text">Click to open</p>
+            </div>
+            <div class="desktop-face desktop-back">
+              <div class="image-container" style="${spreads[0].img ? `background-image: url('${spreads[0].img}')` : ''}">
+                ${!spreads[0].img ? `[ Visual Art: Spread 1 ]` : ''}
+              </div>
+            </div>
+          </div>
     `;
-    pagesData.push(textContent);
 
-    // Generate Image Page if exists
-    if (spread.img) {
+    for (let i = 0; i < spreads.length; i++) {
+      zIndexCounter--;
+      const isLast = i === spreads.length - 1;
+      const next = spreads[i + 1];
+
+      html += `
+        <div class="desktop-page" style="z-index: ${zIndexCounter};">
+          <div class="desktop-face desktop-front">
+            <div class="desktop-text-content">
+              <h2 class="spread-title">${spreads[i].title}</h2>
+              <div class="section-label">Story Text</div>
+              <p class="desktop-story-text">${spreads[i].story}</p>
+              ${spreads[i].dialogue ? `<div class="section-label" style="margin-top: 16px;">Dialogue</div><p class="desktop-story-text">${spreads[i].dialogue}</p>` : ''}
+              <div class="art-notes">
+                <div class="section-label">Art Direction</div>
+                <p style="font-size: 0.85rem; margin-bottom: 8px;">${spreads[i].art}</p>
+                <div class="section-label">Film Cue</div>
+                <p style="font-size: 0.85rem; font-style: italic; margin:0;">${spreads[i].film}</p>
+              </div>
+            </div>
+          </div>
+          <div class="desktop-face desktop-back ${isLast ? 'cover-container' : ''}">
+            ${isLast ? `
+               <h1 style="color: var(--flame-gold); margin:0;">The End</h1>
+            ` : `
+               <div class="image-container" style="${next.img ? `background-image: url('${next.img}')` : ''}">
+                 ${!next.img ? `[ Visual Art: Spread ${i + 2} ]` : ''}
+               </div>
+            `}
+          </div>
+        </div>
+      `;
+    }
+    
+    html += `</div></div>`;
+    appRoot.innerHTML = html;
+
+    // Desktop Click Logic
+    const pages = document.querySelectorAll('.desktop-page');
+    pages.forEach((page, index) => {
+      page.addEventListener('click', () => {
+        if (page.classList.contains('flipped')) {
+          page.classList.remove('flipped');
+          setTimeout(() => { page.style.zIndex = pages.length - index; }, 400); 
+        } else {
+          page.classList.add('flipped');
+          setTimeout(() => { page.style.zIndex = index + 1; }, 400);
+        }
+      });
+    });
+
+    // Ambient Lighting Logic
+    const ambient = document.getElementById('ambient-light');
+    document.addEventListener('mousemove', (e) => {
+      if(ambient) {
+        ambient.style.setProperty('--cursor-x', `${e.clientX}px`);
+        ambient.style.setProperty('--cursor-y', `${e.clientY}px`);
+      }
+    });
+  }
+
+  // --------------------------------------------------
+  //  MOBILE RENDERER
+  // --------------------------------------------------
+  function mountMobile() {
+    let pagesData = [];
+    
+    // Mobile Cover
+    pagesData.push(`
+      <div class="mobile-page cover-container">
+        <h1>The Little<br><em>Flame</em></h1>
+        <p class="instruction-text">Swipe to read</p>
+      </div>
+    `);
+
+    // Map Single Cards
+    spreads.forEach(spread => {
       pagesData.push(`
-        <div class="page page-image" style="background-image: url('${spread.img}')">
-           <!-- Image Page -->
+        <div class="mobile-page">
+          <div class="mobile-text-wrapper">
+            <div class="mobile-scroll">
+              <p class="mobile-story">${spread.story}</p>
+              ${spread.dialogue ? `<p class="mobile-dialogue">${spread.dialogue}</p>` : ''}
+            </div>
+          </div>
         </div>
       `);
-    }
-  });
+      if (spread.img) {
+        pagesData.push(`<div class="mobile-page" style="background-image: url('${spread.img}'); background-size: cover; background-position: center; background-color: var(--mist-gray);"></div>`);
+      }
+    });
 
-  // 3. End Cover
-  pagesData.push(`
-    <div class="page page-cover">
-      <h1 style="color: var(--flame-gold);">The End</h1>
-    </div>
-  `);
+    // Mobile End Cover
+    pagesData.push(`
+      <div class="mobile-page cover-container">
+        <h1 style="color: var(--flame-gold); margin:0;">The End</h1>
+      </div>
+    `);
 
-  // 4. Inject into DOM with reverse z-index stacking
-  let totalPages = pagesData.length;
-  pagesData.forEach((pageHTML, i) => {
-    let wrapper = document.createElement('div');
-    wrapper.innerHTML = pageHTML.trim();
-    let pageEl = wrapper.firstChild;
-    pageEl.style.zIndex = totalPages - i;
-    pageEl.dataset.index = i;
-    bookContainer.appendChild(pageEl);
-  });
-
-  // --- Interaction Logic ---
-  const allPages = Array.from(document.querySelectorAll('.page'));
-  let currentIndex = 0;
-
-  function flipNext() {
-    if (currentIndex >= allPages.length - 1) return;
-    allPages[currentIndex].classList.add('flipped');
-    currentIndex++;
-  }
-
-  function flipPrev() {
-    if (currentIndex <= 0) return;
-    currentIndex--;
-    allPages[currentIndex].classList.remove('flipped');
-  }
-
-  // --- Touch Swipe Logic ---
-  let touchStartX = 0;
-  let touchStartY = 0;
-
-  bookContainer.addEventListener('touchstart', e => {
-    touchStartX = e.changedTouches[0].screenX;
-    touchStartY = e.changedTouches[0].screenY;
-  }, {passive: true});
-
-  bookContainer.addEventListener('touchend', e => {
-    let touchEndX = e.changedTouches[0].screenX;
-    let touchEndY = e.changedTouches[0].screenY;
+    let html = `
+      <div class="ui-bar">
+        <div class="ui-btn" id="btn-settings">Aa</div>
+        <div class="ui-btn" id="btn-bookmark">🔖</div>
+      </div>
+      <div class="settings-panel" id="settings-panel">
+        <h3>Typography</h3>
+        <div class="slider-group"><label>Text Size</label><input type="range" id="size-slider" min="0.8" max="1.8" step="0.1" value="1.1"></div>
+        <div class="slider-group"><label>Line Height</label><input type="range" id="line-slider" min="1.3" max="2.2" step="0.1" value="1.7"></div>
+        <button class="close-settings" id="btn-close-settings">Done</button>
+      </div>
+      <div class="toast" id="toast">Bookmark Saved</div>
+      <div class="mobile-scene"><div class="mobile-book" id="m-book">
+    `;
     
-    let diffX = touchStartX - touchEndX;
-    let diffY = Math.abs(touchStartY - touchEndY);
+    let total = pagesData.length;
+    pagesData.forEach((page, i) => {
+      // Inject reverse z-index directly into the string
+      let pageWithZ = page.replace('class="mobile-page"', `class="mobile-page" style="z-index:${total - i};"`);
+      html += pageWithZ;
+    });
 
-    // Ensure it's a horizontal swipe, not a vertical scroll through text
-    if (diffY < 60 && Math.abs(diffX) > 50) {
-      if (diffX > 0) flipNext(); // Swiped left -> Next
-      else flipPrev(); // Swiped right -> Prev
+    html += `</div></div>`;
+    appRoot.innerHTML = html;
+
+    // Mobile Touch & UI Logic
+    const allPages = Array.from(document.querySelectorAll('.mobile-page'));
+    let currentIndex = 0;
+
+    function flipNext() {
+      if (currentIndex >= allPages.length - 1) return;
+      allPages[currentIndex].classList.add('flipped');
+      currentIndex++;
     }
-  });
-
-  // Tap zones for ease of use
-  bookContainer.addEventListener('click', e => {
-    const x = e.clientX;
-    const width = window.innerWidth;
-    // Only flip if tapping the edge, ignore middle for text scrolling
-    if (x > width * 0.7) flipNext();
-    else if (x < width * 0.3) flipPrev();
-  });
-
-
-  // --- Typography Settings Logic ---
-  const root = document.documentElement;
-  const btnSettings = document.getElementById('btn-settings');
-  const panelSettings = document.getElementById('settings-panel');
-  const btnCloseSettings = document.getElementById('btn-close-settings');
-  const sizeSlider = document.getElementById('size-slider');
-  const lineSlider = document.getElementById('line-slider');
-
-  btnSettings.addEventListener('click', () => panelSettings.classList.add('active'));
-  btnCloseSettings.addEventListener('click', () => panelSettings.classList.remove('active'));
-
-  sizeSlider.addEventListener('input', (e) => root.style.setProperty('--text-size', `${e.target.value}rem`));
-  lineSlider.addEventListener('input', (e) => root.style.setProperty('--line-height', e.target.value));
-
-  // --- Bookmark Engine ---
-  const btnBookmark = document.getElementById('btn-bookmark');
-  const toast = document.getElementById('toast');
-
-  // Load Bookmark on init
-  const savedIndex = localStorage.getItem('littleFlameBookmark');
-  if (savedIndex !== null) {
-    let target = parseInt(savedIndex);
-    // Fast forward to saved page
-    for(let i = 0; i < target; i++) {
-      allPages[i].classList.add('flipped');
-      // remove animation temporarily for instant load
-      allPages[i].style.transition = 'none'; 
-      allPages[i].offsetHeight; // trigger reflow
-      allPages[i].style.transition = '';
+    function flipPrev() {
+      if (currentIndex <= 0) return;
+      currentIndex--;
+      allPages[currentIndex].classList.remove('flipped');
     }
-    currentIndex = target;
-    showToast("Loaded Bookmark");
+
+    // Touch Swipes
+    const mBook = document.getElementById('m-book');
+    let touchStartX = 0; let touchStartY = 0;
+    mBook.addEventListener('touchstart', e => {
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+    }, {passive: true});
+
+    mBook.addEventListener('touchend', e => {
+      let diffX = touchStartX - e.changedTouches[0].screenX;
+      let diffY = Math.abs(touchStartY - e.changedTouches[0].screenY);
+      if (diffY < 60 && Math.abs(diffX) > 50) {
+        if (diffX > 0) flipNext(); else flipPrev();
+      }
+    });
+
+    // Tap Zones
+    mBook.addEventListener('click', e => {
+      const x = e.clientX; const width = window.innerWidth;
+      if (x > width * 0.7) flipNext();
+      else if (x < width * 0.3) flipPrev();
+    });
+
+    // UI Controls
+    const root = document.documentElement;
+    document.getElementById('btn-settings').addEventListener('click', () => document.getElementById('settings-panel').classList.add('active'));
+    document.getElementById('btn-close-settings').addEventListener('click', () => document.getElementById('settings-panel').classList.remove('active'));
+    document.getElementById('size-slider').addEventListener('input', e => root.style.setProperty('--text-size', `${e.target.value}rem`));
+    document.getElementById('line-slider').addEventListener('input', e => root.style.setProperty('--line-height', e.target.value));
+
+    // Bookmarks
+    const toast = document.getElementById('toast');
+    const saved = localStorage.getItem('lf-bookmark');
+    if (saved !== null) {
+      let target = parseInt(saved);
+      for(let i = 0; i < target; i++) {
+        allPages[i].classList.add('flipped');
+        allPages[i].style.transition = 'none'; 
+        allPages[i].offsetHeight; 
+        allPages[i].style.transition = '';
+      }
+      currentIndex = target;
+      toast.innerText = "Loaded Bookmark";
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+    document.getElementById('btn-bookmark').addEventListener('click', () => {
+      localStorage.setItem('lf-bookmark', currentIndex);
+      toast.innerText = "Bookmark Saved";
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    });
   }
 
-  btnBookmark.addEventListener('click', () => {
-    localStorage.setItem('littleFlameBookmark', currentIndex);
-    showToast("Bookmark Saved");
-  });
+  // --------------------------------------------------
+  //  ROUTING ENGINE
+  // --------------------------------------------------
+  let isCurrentlyMobile = window.innerWidth <= 768;
 
-  function showToast(message) {
-    toast.innerText = message;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2000);
+  function initApp() {
+    isCurrentlyMobile = window.innerWidth <= 768;
+    if (isCurrentlyMobile) {
+      mountMobile();
+    } else {
+      mountDesktop();
+    }
   }
+
+  // Run on load
+  initApp();
+
+  // Watch for device rotation or window resizing across the breakpoint
+  window.addEventListener('resize', () => {
+    const checkMobile = window.innerWidth <= 768;
+    if (checkMobile !== isCurrentlyMobile) {
+      initApp();
+    }
+  });
 
 </script>
 </body>
