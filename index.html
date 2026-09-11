@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>The Little Flame - Mobile Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Work+Sans:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --flame-gold: #F2B24C;
+    --ember-orange: #D96C2E;
+    --volcano-black: #17121C;
+    --paper: #F4EFE4;
+    --forest-slate: #4A5D53;
+    --mist-gray: #A9B3AD;
+    
+    /* Dynamic Typography Variables */
+    --text-size: 1.1rem;
+    --line-height: 1.7;
+  }
+  
+  body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--volcano-black);
+    font-family: 'Merriweather', serif;
+    overflow: hidden;
+    touch-action: none; /* Prevents native pull-to-refresh */
+  }
+
+  /* UI Overlay Controls */
+  .ui-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    box-sizing: border-box;
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  .ui-btn {
+    background: rgba(23, 18, 28, 0.65);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(244, 239, 228, 0.15);
+    color: var(--paper);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    pointer-events: auto;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  .settings-panel {
+    position: fixed;
+    bottom: -100%;
+    left: 0;
+    width: 100%;
+    background: var(--paper);
+    padding: 30px 24px;
+    box-sizing: border-box;
+    border-radius: 20px 20px 0 0;
+    z-index: 101;
+    transition: bottom 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+  }
+
+  .settings-panel.active {
+    bottom: 0;
+  }
+
+  .settings-panel h3 {
+    font-family: 'Fraunces', serif;
+    color: var(--volcano-black);
+    margin: 0 0 20px 0;
+    font-size: 1.4rem;
+  }
+
+  .slider-group {
+    margin-bottom: 24px;
+  }
+
+  .slider-group label {
+    display: block;
+    font-family: 'Work Sans', sans-serif;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    color: #555;
+    margin-bottom: 10px;
+  }
+
+  input[type=range] {
+    width: 100%;
+    accent-color: var(--ember-orange);
+  }
+
+  .close-settings {
+    width: 100%;
+    padding: 14px;
+    background: var(--volcano-black);
+    color: var(--paper);
+    border: none;
+    border-radius: 8px;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 10px;
+  }
+
+  /* Toast Notification */
+  .toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background: var(--flame-gold);
+    color: var(--volcano-black);
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    z-index: 200;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  }
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Book Engine */
+  .scene {
+    width: 100%;
+    height: 100%;
+    perspective: 2500px;
+  }
+
+  .book {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+  }
+
+  .page {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: left center;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.645, 0.045, 0.355, 1);
+    background-color: var(--paper);
+    backface-visibility: hidden;
+  }
+
+  .page.flipped {
+    transform: rotateY(-180deg);
+  }
+
+  /* Page Types */
+  .page-cover {
+    background-color: var(--forest-slate);
+    color: var(--paper);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    text-align: center;
+  }
+
+  .page-cover h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 3.5rem;
+    font-weight: 300;
+    line-height: 1.05;
+    margin-bottom: 20px;
+  }
+
+  .page-cover h1 em {
+    color: var(--flame-gold);
+    font-style: italic;
+  }
+
+  .page-text {
+    padding: 100px 30px 40px 30px; /* Top padding clears the UI bar */
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .scroll-container {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain; /* Stops bounce effect */
+  }
+
+  /* Dynamic text styles applied here */
+  .story-text {
+    font-size: var(--text-size);
+    line-height: var(--line-height);
+    color: #222;
+    text-align: left;
+    margin-bottom: 20px;
+  }
+
+  .dialogue-text {
+    font-size: calc(var(--text-size) * 0.95);
+    line-height: var(--line-height);
+    color: #444;
+    padding-left: 16px;
+    border-left: 2px solid var(--ember-orange);
+    margin-bottom: 20px;
+  }
+
+  .page-image {
+    background-size: cover;
+    background-position: center;
+    background-color: var(--mist-gray);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    padding-bottom: 40px;
+  }
+
+  .art-caption {
+    background: rgba(23, 18, 28, 0.7);
+    backdrop-filter: blur(4px);
+    color: var(--paper);
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* Hidden UI Tap Zones for Desktop debugging or tap navigation */
+  .tap-zone-left {
+    position: absolute; top: 0; left: 0; width: 35%; height: 100%; z-index: 50;
+  }
+  .tap-zone-right {
+    position: absolute; top: 0; right: 0; width: 65%; height: 100%; z-index: 50;
+  }
+</style>
+</head>
+<body>
+
+<!-- UI Controls -->
+<div class="ui-bar">
+  <div class="ui-btn" id="btn-settings">Aa</div>
+  <div class="ui-btn" id="btn-bookmark">🔖</div>
+</div>
+
+<!-- Settings Panel -->
+<div class="settings-panel" id="settings-panel">
+  <h3>Typography</h3>
+  
+  <div class="slider-group">
+    <label>Text Size</label>
+    <input type="range" id="size-slider" min="0.8" max="1.8" step="0.1" value="1.1">
+  </div>
+  
+  <div class="slider-group">
+    <label>Line Height</label>
+    <input type="range" id="line-slider" min="1.3" max="2.2" step="0.1" value="1.7">
+  </div>
+
+  <button class="close-settings" id="btn-close-settings">Done</button>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast">Bookmark Saved</div>
+
+<!-- Book Engine -->
+<div class="scene">
+  <div class="book" id="book">
+    <!-- Pages Injected Here -->
+  </div>
+</div>
+
+<script>
+  // Data Array with Em Dashes removed
+  const spreads = [
+    {
+      title: "Act I: Birth",
+      story: "High in the burning sky, seven fire horses are running. Wherever they gallop, the world catches light. They are not cruel. They are only wild, and the world below has grown careless with the wild things. As they pass, two of the horses slow. They look back, down into the smoke, at something small falling toward the forest. Then they run on, and are gone.",
+      img: null 
+    },
+    {
+      story: "The rain comes after, the way it always does. But under the oldest tree in the forest, in a small dry pocket of the world, a little flame blinks awake. It does not know how it got here. It does not know what it is. The little flame reaches out to touch the world. The earth goes black beneath its fingers. It pulls back, afraid of the mark it left.",
+      dialogue: "<strong>Flame:</strong> \"What... am I?\"<br><strong>Redwood:</strong> \"You are alive.\"",
+      img: "watermarked_img_5637060041392631158.jpg"
+    },
+    {
+      story: "“Then I am dangerous,” the little flame whispers. The old tree takes a long time to answer, the way old things do.",
+      dialogue: "<strong>Redwood:</strong> \"Water can drown. Wind can level a mountain. Dangerous is not the whole story.\"",
+      img: null
+    },
+    {
+      story: "Far away, through the clearing smoke, a mountain glows. The little flame has never seen it before. And yet, somehow, it knows that place. It feels the pull of it like a string tied to its heart. But the little flame is afraid. “What if I burn something on the way?” it asks. “What if I burn someone who is trying to help me?”",
+      dialogue: "<strong>Redwood:</strong> \"That is a question worth carrying. It means you already know the difference between burning and caring. I cannot go with you. But I know someone who moves faster than I do.\"",
+      img: null
+    },
+    {
+      story: "The redwood's leaves stir, a low whistle meant for someone. And out of the smoke, a black shape drops down. The crow looks the little flame over, head tilting left, then right.",
+      dialogue: "<strong>Crow:</strong> \"It's on fire.\"<br><strong>Redwood:</strong> \"It is fire.\"<br><strong>Crow:</strong> \"...There's a difference?\"",
+      img: null
+    },
+    {
+      story: "The crow understands the problem at once. The flame cannot walk. And anything that carries it will burn. So the crow lifts a branch in his talons, and the little flame perches on the far end like a small bright lantern. Wobbling, uncertain, they rise.",
+      dialogue: "<strong>Flame:</strong> \"We are UP!\"<br><strong>Crow:</strong> \"Yes. We are up. Please stop wiggling.\"",
+      img: "watermarked_img_4289461905873182464.jpg"
+    },
+    {
+      story: "But the branch burns short, and the crow cannot fly far enough. They come down at the edge of a quiet marsh, a hidden, tended place, where a pair of dark eyes is watching from the reeds. The monkey steps out slowly. He was kept once, he tells them, caged by humans for a long time. Then the great burning came. The people ran. The cages were forgotten. And he ran too, until he found this marsh that no one had claimed.",
+      dialogue: "<strong>Flame:</strong> \"The fire gave you this?\"<br><strong>Monkey:</strong> \"The fire gave me everything.\"",
+      img: null
+    },
+    {
+      story: "The monkey breaks a long green branch, one that will not burn so fast, and holds it out. “You're afraid of yourself,” he says quietly. “I can see it. You learn to carry what you are.” And so they go on: the crow the eye in the sky, the monkey the steady hands below, the little flame the light between them.",
+      img: "watermarked_img_7852508342357116395.jpg"
+    },
+    {
+      story: "That night they are hungry, so the little flame does something new. It touches a small nest of wood inside a ring of stones, and a warm fire blooms. Its own warmth, set gently into the world, harming nothing. And for the first time, the little flame laughs, a small crackling sound, like a fresh log catching light.",
+      img: null
+    },
+    {
+      story: "At last they reach the mountain. But they reach only the bottom of it. The rock is too hot. The monkey's hands are burned. The crow cannot fly the heavy air above. So close, and no further. As they sit, discouraged, something ancient comes scraping slowly out of the dark rock. An old iguana, the color of the mountain itself, with eyes like slow-burning lava.",
+      dialogue: "<strong>Iguana:</strong> \"You've come a long way to be sad.\"",
+      img: null
+    },
+    {
+      story: "“I know a way up,” says the old iguana. “I have never taken anyone before. But no one before has ever deserved to go.” The little flame steps onto one last branch. The monkey and the crow cannot follow. The way up is dark, but the little flame is the light, and by it the old iguana climbs.",
+      dialogue: "<strong>Iguana:</strong> \"You will be my light going up. I will be your feet.\"<br><strong>Crow:</strong> \"We know.\"",
+      img: "watermarked_img_198161616903919069.jpg"
+    },
+    {
+      story: "Higher up, the heat grows fierce, and the little flame grows with it, brighter, wilder, burning the branch fast. “The branch” it cries, afraid. “Don't shrink back,” says the iguana, climbing hard. “Burn. That is what you are for.” They reach the last ledge. Above is open sky and the volcano's roaring mouth, and the branch is nearly gone.",
+      img: null
+    },
+    {
+      story: "And so, with the last of his strength, the old iguana draws the branch back and throws the little flame up, into the open sky. For a moment it is alone, tumbling, with nothing beneath it at all. And then the mountain erupts.",
+      img: null
+    },
+    {
+      story: "Out of the roaring light, two fire horses come down. They circle the little flame, gentle now, and one breathes over it a long, warm breath, like a mother over something sleeping. The horse breathes again, a breath of pure fire, given freely, and the little flame grows. The little flame is a flame no longer. It is a small fire pony, whole at last, and entirely itself.",
+      img: null
+    },
+    {
+      story: "Far below, the monkey, the crow, and the old iguana watch the sky burn, and they know their friend is up there. And far away, in a forest slowly turning green again, the light reaches an old redwood. A black shape flies home and lands on its highest branch. “He made it, old friend,” says the crow. The old tree says nothing. But every leaf, all the way to the top, turns upward at once, as if to feel the warmth. As if to say: I know. I know.",
+      img: null
+    }
+  ];
+
+  // Engine Setup
+  const bookContainer = document.getElementById('book');
+  let pagesData = [];
+
+  // 1. Cover Page
+  pagesData.push(`
+    <div class="page page-cover">
+      <h1>The Little<br><em>Flame</em></h1>
+      <p style="font-family:'Work Sans', sans-serif; letter-spacing: 2px; font-size: 0.8rem; text-transform: uppercase;">Swipe to read</p>
+    </div>
+  `);
+
+  // 2. Map Spreads into single pages (Text -> Image)
+  spreads.forEach((spread, index) => {
+    // Generate Text Page
+    let textContent = `
+      <div class="page page-text">
+        <div class="scroll-container">
+          <p class="story-text">${spread.story}</p>
+          ${spread.dialogue ? `<p class="dialogue-text">${spread.dialogue}</p>` : ''}
+        </div>
+      </div>
+    `;
+    pagesData.push(textContent);
+
+    // Generate Image Page if exists
+    if (spread.img) {
+      pagesData.push(`
+        <div class="page page-image" style="background-image: url('${spread.img}')">
+           <!-- Image Page -->
+        </div>
+      `);
+    }
+  });
+
+  // 3. End Cover
+  pagesData.push(`
+    <div class="page page-cover">
+      <h1 style="color: var(--flame-gold);">The End</h1>
+    </div>
+  `);
+
+  // 4. Inject into DOM with reverse z-index stacking
+  let totalPages = pagesData.length;
+  pagesData.forEach((pageHTML, i) => {
+    let wrapper = document.createElement('div');
+    wrapper.innerHTML = pageHTML.trim();
+    let pageEl = wrapper.firstChild;
+    pageEl.style.zIndex = totalPages - i;
+    pageEl.dataset.index = i;
+    bookContainer.appendChild(pageEl);
+  });
+
+  // --- Interaction Logic ---
+  const allPages = Array.from(document.querySelectorAll('.page'));
+  let currentIndex = 0;
+
+  function flipNext() {
+    if (currentIndex >= allPages.length - 1) return;
+    allPages[currentIndex].classList.add('flipped');
+    currentIndex++;
+  }
+
+  function flipPrev() {
+    if (currentIndex <= 0) return;
+    currentIndex--;
+    allPages[currentIndex].classList.remove('flipped');
+  }
+
+  // --- Touch Swipe Logic ---
+  let touchStartX = 0;
+  let touchStartY = 0;
+
+  bookContainer.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  }, {passive: true});
+
+  bookContainer.addEventListener('touchend', e => {
+    let touchEndX = e.changedTouches[0].screenX;
+    let touchEndY = e.changedTouches[0].screenY;
+    
+    let diffX = touchStartX - touchEndX;
+    let diffY = Math.abs(touchStartY - touchEndY);
+
+    // Ensure it's a horizontal swipe, not a vertical scroll through text
+    if (diffY < 60 && Math.abs(diffX) > 50) {
+      if (diffX > 0) flipNext(); // Swiped left -> Next
+      else flipPrev(); // Swiped right -> Prev
+    }
+  });
+
+  // Tap zones for ease of use
+  bookContainer.addEventListener('click', e => {
+    const x = e.clientX;
+    const width = window.innerWidth;
+    // Only flip if tapping the edge, ignore middle for text scrolling
+    if (x > width * 0.7) flipNext();
+    else if (x < width * 0.3) flipPrev();
+  });
+
+
+  // --- Typography Settings Logic ---
+  const root = document.documentElement;
+  const btnSettings = document.getElementById('btn-settings');
+  const panelSettings = document.getElementById('settings-panel');
+  const btnCloseSettings = document.getElementById('btn-close-settings');
+  const sizeSlider = document.getElementById('size-slider');
+  const lineSlider = document.getElementById('line-slider');
+
+  btnSettings.addEventListener('click', () => panelSettings.classList.add('active'));
+  btnCloseSettings.addEventListener('click', () => panelSettings.classList.remove('active'));
+
+  sizeSlider.addEventListener('input', (e) => root.style.setProperty('--text-size', `${e.target.value}rem`));
+  lineSlider.addEventListener('input', (e) => root.style.setProperty('--line-height', e.target.value));
+
+  // --- Bookmark Engine ---
+  const btnBookmark = document.getElementById('btn-bookmark');
+  const toast = document.getElementById('toast');
+
+  // Load Bookmark on init
+  const savedIndex = localStorage.getItem('littleFlameBookmark');
+  if (savedIndex !== null) {
+    let target = parseInt(savedIndex);
+    // Fast forward to saved page
+    for(let i = 0; i < target; i++) {
+      allPages[i].classList.add('flipped');
+      // remove animation temporarily for instant load
+      allPages[i].style.transition = 'none'; 
+      allPages[i].offsetHeight; // trigger reflow
+      allPages[i].style.transition = '';
+    }
+    currentIndex = target;
+    showToast("Loaded Bookmark");
+  }
+
+  btnBookmark.addEventListener('click', () => {
+    localStorage.setItem('littleFlameBookmark', currentIndex);
+    showToast("Bookmark Saved");
+  });
+
+  function showToast(message) {
+    toast.innerText = message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+
+</script>
+</body>
+</html>
